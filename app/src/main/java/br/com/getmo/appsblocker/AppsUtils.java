@@ -24,16 +24,16 @@ public class AppsUtils {
 
         ArrayList<ApplicationInfo> out = new ArrayList<>();
         for ( ApplicationInfo info : list ) {
-            if ( ( info.flags & ApplicationInfo.FLAG_SYSTEM ) == 1 ) {
-                // System application
-                continue;
-            } else {
-                // Installed by user
-//			info.loadLabel(packageManager)
-//			info.packageName;
-//			info.loadIcon(packageManager)
+//            if ( ( info.flags & ApplicationInfo.FLAG_SYSTEM ) == 1 ) {
+//                // System application
+//                continue;
+//            } else {
+//                // Installed by user
+////			info.loadLabel(packageManager)
+////			info.packageName;
+////			info.loadIcon(packageManager)
                 out.add( info );
-            }
+//            }
         }
 
         // return ( new JSONArray( out ) ).toString();
