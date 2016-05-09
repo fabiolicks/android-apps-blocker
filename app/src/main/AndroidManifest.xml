@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="br.com.getmo.appsblocker">
 
+    <!--uses-permission android:name="android.permission.GET_TASKS"/-->
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -15,6 +17,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".LookupService"
+            android:exported="false"/>
+
+        <receiver android:name=".ToastReceiver">
+            <intent-filter>
+                <action android:name="br.com.getmo.appsblocker.action.LOOKUP_ALERT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

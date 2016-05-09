@@ -10,9 +10,11 @@ import com.orm.dsl.Ignore;
  */
 public class AppInfo extends SugarRecord implements Comparable<AppInfo> {
 
-    public String appId;
+    public String appPackage;
 
     public boolean isAllowed;
+
+    public String appMainActivity;
 
     @Ignore
     public String appName;
@@ -20,9 +22,18 @@ public class AppInfo extends SugarRecord implements Comparable<AppInfo> {
     @Ignore
     public Drawable appIcon;
 
+    @Ignore
+    public boolean dirty;
+
+    @Ignore
+    public static final String APP_NAME = "br.com.getmo.appsblocker.field.APP_NAME";
+
     @Override
     public String toString() {
-        return "{ appId='" + appId + "\', appName='" + appName + "\'}";
+        return "{appPackage='" + appPackage + '\'' +
+                ", appMainActivity='" + appMainActivity + '\'' +
+                ", appName='" + appName + '\'' +
+                '}';
     }
 
     @Override

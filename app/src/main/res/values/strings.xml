@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Apps Blocker</string>
+    <string name="alert_denied">O aplicativo \'%s\' foi bloqueado pelo administrador.</string>
 </resources>

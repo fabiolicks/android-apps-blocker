@@ -1,7 +1,7 @@
 package br.com.getmo.appsblocker;
 
+import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,14 +12,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * Created by fabio.licks on 04/05/16.
@@ -27,9 +25,9 @@ import java.util.TreeSet;
 
 public class AppsListFragment extends Fragment {
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    RecyclerView mRecyclerView;
+    RecyclerView.Adapter mAdapter;
+    RecyclerView.LayoutManager mLayoutManager;
 
     @Nullable
     @Override
@@ -64,7 +62,7 @@ public class AppsListFragment extends Fragment {
             public TextView  mName;
             public CheckBox  mAllowed;
 
-            public ViewHolder( View v ) {
+            public ViewHolder( final View v ) {
                 super( v );
 
                 mIcon = ( ImageView )v.findViewById( R.id.app_icon );
@@ -75,15 +73,31 @@ public class AppsListFragment extends Fragment {
             }
 
             @Override
-            public void onClick( View v ) {
-                int pos = mRecyclerView.getChildAdapterPosition( v );
-                if ( pos >= 0 && pos < getItemCount() ) {
-                    getActivity()
-                            .startActivity(
-                                    getActivity()
-                                            .getPackageManager()
-                                            .getLaunchIntentForPackage( mDataset[pos].appId ) );
-                }
+            public void onClick( final View v ) {
+                new AsyncTask<Void,Void,Void>() {
+                    private int pos;
+
+                    @Override
+                    protected void onPreExecute() {
+                        pos = mRecyclerView.getChildAdapterPosition( v );
+                    }
+
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        if ( pos >= 0 && pos < getItemCount() ) {
+                            Intent it = new Intent();
+                            it.setComponent(
+                                    new ComponentName(
+                                            mDataset[pos].appPackage, mDataset[pos].appMainActivity ) );
+                            it.setAction( "android.intent.action.MAIN" );
+                            it.addCategory( "android.intent.category.LAUNCHER" );
+                            it.addCategory( "android.intent.category.DEFAULT" );
+                            startActivity( it );
+                        }
+
+                        return null;
+                    }
+                }.execute();
             }
         }
 
@@ -108,11 +122,11 @@ public class AppsListFragment extends Fragment {
         @Override
         public void onBindViewHolder( ViewHolder holder, int position ) {
             AppInfo item = mDataset[ position ];
-            // - get element from your dataset at this position
-            // - replace the contents of the view with that element
             holder.mIcon.setImageDrawable( item.appIcon );
             holder.mName.setText( item.appName );
-            holder.mAllowed.setChecked( item.isAllowed );
+
+            holder.mAllowed.setChecked(
+                    ( "br.com.getmo.appsblocker".equals( item.appPackage ) ) ? true : item.isAllowed );
         }
 
         // Return the size of your dataset (invoked by the layout manager)
@@ -133,7 +147,7 @@ public class AppsListFragment extends Fragment {
 
 //            if ( apps != null ) {
 //                for ( AppInfo app : apps ) {
-//                    List<AppInfo> list = AppInfo.find( AppInfo.class, "APP_ID = ?", app.appId );
+//                    List<AppInfo> list = AppInfo.find( AppInfo.class, "APP_ID = ?", app.appPackage );
 //                    if ( list != null && list.size() > 0 ) {
 //                        result.add( list.get( 0 ) );
 //                    } else {

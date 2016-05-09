@@ -1,8 +1,6 @@
 package br.com.getmo.appsblocker;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.util.Log;
@@ -27,8 +25,9 @@ public class AppsUtils {
         for( ResolveInfo ri:availableActivities ){
             AppInfo app = new AppInfo();
             app.appName = (String) ri.loadLabel( manager );
-            app.appId   = ri.activityInfo.  packageName;
+            app.appPackage = ri.activityInfo.packageName;
             app.appIcon = ri.activityInfo.loadIcon( manager );
+            app.appMainActivity = ri.activityInfo.name;
             apps.add( app );
 
             Log.d( TAG, app.toString() );
