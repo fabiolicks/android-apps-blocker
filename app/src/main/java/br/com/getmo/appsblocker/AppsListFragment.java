@@ -16,8 +16,11 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.orm.util.NamingHelper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by fabio.licks on 04/05/16.
@@ -83,12 +86,13 @@ public class AppsListFragment extends Fragment {
                     }
 
                     @Override
-                    protected Void doInBackground(Void... params) {
+                    protected Void doInBackground( Void... params ) {
                         if ( pos >= 0 && pos < getItemCount() ) {
                             Intent it = new Intent();
                             it.setComponent(
                                     new ComponentName(
-                                            mDataset[pos].appPackage, mDataset[pos].appMainActivity ) );
+                                            mDataset[ pos ].appPackage,
+                                            mDataset[ pos ].appMainActivity ) );
                             it.setAction( "android.intent.action.MAIN" );
                             it.addCategory( "android.intent.category.LAUNCHER" );
                             it.addCategory( "android.intent.category.DEFAULT" );
@@ -120,13 +124,23 @@ public class AppsListFragment extends Fragment {
 
         // Replace the contents of a view (invoked by the layout manager)
         @Override
-        public void onBindViewHolder( ViewHolder holder, int position ) {
+        public void onBindViewHolder( ViewHolder holder, final int position ) {
             AppInfo item = mDataset[ position ];
             holder.mIcon.setImageDrawable( item.appIcon );
             holder.mName.setText( item.appName );
 
             holder.mAllowed.setChecked(
                     ( "br.com.getmo.appsblocker".equals( item.appPackage ) ) ? true : item.isAllowed );
+
+            holder.mAllowed.setOnClickListener( new View.OnClickListener() {
+                @Override
+                public void onClick( View v ) {
+                    mDataset[ position ].isAllowed = !mDataset[ position ].isAllowed;
+                    mDataset[ position ].save();
+
+                    mAdapter.notifyDataSetChanged();
+                }
+            } );
         }
 
         // Return the size of your dataset (invoked by the layout manager)
@@ -139,24 +153,21 @@ public class AppsListFragment extends Fragment {
     private class ListAppsTask extends AsyncTask<Void, Void, AppInfo[]> {
         @Override
         protected AppInfo[] doInBackground(Void... params) {
-//            ArrayList<AppInfo> result = new ArrayList<>();
             ArrayList<AppInfo> apps = AppsUtils.getApps( getActivity().getPackageManager() );
 
+            if ( apps != null ) {
+                for ( AppInfo app : apps ) {
+                    List<AppInfo> list = AppInfo.find( AppInfo.class, NamingHelper.toSQLNameDefault("appPackage") + " = ?", app.appPackage );
+                    if ( list != null && list.size() > 0 ) {
+                        app.isAllowed = list.get( 0 ).isAllowed;
+                    }
+                }
+            }
+
             AppInfo[] objArray = apps.toArray( new AppInfo[ 0 ] );
+
             Arrays.sort( objArray, new AppNameComparator() );
 
-//            if ( apps != null ) {
-//                for ( AppInfo app : apps ) {
-//                    List<AppInfo> list = AppInfo.find( AppInfo.class, "APP_ID = ?", app.appPackage );
-//                    if ( list != null && list.size() > 0 ) {
-//                        result.add( list.get( 0 ) );
-//                    } else {
-//                        result.add( app );
-//                    }
-//                }
-//            }
-
-//            return result;
             return objArray;
         }
 

@@ -3,18 +3,25 @@
     package="br.com.getmo.appsblocker">
 
     <!--uses-permission android:name="android.permission.GET_TASKS"/-->
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
 
     <application
+        android:name="com.orm.SugarApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data android:name="DATABASE" android:value="apps.db" />
+        <meta-data android:name="VERSION" android:value="1" />
+        <meta-data android:name="QUERY_LOG" android:value="false" />
+        <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="br.com.getmo.appsblocker" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
@@ -22,12 +29,20 @@
             android:name=".LookupService"
             android:exported="false"/>
 
-        <receiver android:name=".ToastReceiver">
+        <receiver
+            android:name=".ToastReceiver">
             <intent-filter>
                 <action android:name="br.com.getmo.appsblocker.action.LOOKUP_ALERT"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
-    </application>
 
+        <receiver
+            android:name=".AppSecretLauncherReceiver">
+            <intent-filter android:priority="1">
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>

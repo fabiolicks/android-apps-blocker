@@ -17,7 +17,15 @@ public class ToastReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         if ( ACTION_LOOKUP_ALERT.equals( action ) ) {
             String appName = "TESTE!"; // intent.getStringExtra( AppInfo.APP_NAME );
-            Toast.makeText( context, String.format( context.getString( R.string.alert_denied ), appName ), Toast.LENGTH_SHORT ).show();
+            Toast.makeText(
+                    context,
+                    String.format( context.getString( R.string.alert_denied ), appName ), Toast.LENGTH_SHORT ).show();
+
+            // Start Home Screen
+            context.startActivity(
+                    new Intent( Intent.ACTION_MAIN )
+                            .addCategory( Intent.CATEGORY_HOME )
+                            .setFlags( Intent.FLAG_ACTIVITY_NEW_TASK ) );
         }
     }
 }

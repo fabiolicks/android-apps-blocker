@@ -5,6 +5,8 @@ import android.graphics.drawable.Drawable;
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 
+import java.util.Objects;
+
 /**
  * Created by fabio.licks on 04/05/16.
  */
@@ -23,9 +25,6 @@ public class AppInfo extends SugarRecord implements Comparable<AppInfo> {
     public Drawable appIcon;
 
     @Ignore
-    public boolean dirty;
-
-    @Ignore
     public static final String APP_NAME = "br.com.getmo.appsblocker.field.APP_NAME";
 
     @Override
@@ -40,5 +39,18 @@ public class AppInfo extends SugarRecord implements Comparable<AppInfo> {
     public int compareTo( AppInfo another ) {
         // ascending order (descending order would be: name2.compareTo(name1))
         return appName.compareTo( another.appName );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AppInfo appInfo = (AppInfo) o;
+        return Objects.equals(appPackage, appInfo.appPackage);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(appPackage);
     }
 }

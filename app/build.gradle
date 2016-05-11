@@ -6,8 +6,8 @@ android {
 
     defaultConfig {
         applicationId "br.com.getmo.appsblocker"
-        minSdkVersion 11
-        targetSdkVersion 23
+        minSdkVersion 19
+        targetSdkVersion 19
         versionCode 1
         versionName "1.0"
     }

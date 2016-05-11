@@ -5,11 +5,12 @@ import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.Context;
-import android.os.Handler;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.util.Log;
-import android.widget.Toast;
 
-import java.util.Iterator;
+import com.orm.util.NamingHelper;
+
 import java.util.List;
 
 /**
@@ -33,9 +34,15 @@ public class LookupService extends IntentService {
      * @see IntentService
      */
     public static void startActionLookup( Context context ) {
+        stopActionLookup();
+
         Intent intent = new Intent( context, LookupService.class );
         intent.setAction( ACTION_LOOKUP );
-        context.startService(intent);
+        context.startService( intent );
+    }
+
+    public static void stopActionLookup( ) {
+        stop = true;
     }
 
     @Override
@@ -53,15 +60,25 @@ public class LookupService extends IntentService {
      * parameters.
      */
     private void handleActionLookup(  ) {
-        // Get the Activity Manager
-        ActivityManager manager = ( ActivityManager ) getSystemService( ACTIVITY_SERVICE );
+        stop = false;
 
-//        // List of allowed apps
-//        List<AppInfo> allowed = AppInfo.find( AppInfo.class, "IS_ALLOWED = ?", "1" );
+        // List of allowed apps
+        List<AppInfo> allowed =
+                AppInfo.find( AppInfo.class, NamingHelper.toSQLNameDefault( "isAllowed" ) + " = ?", "1" );
+        Log.d( "DEBUG", "---------------> " + allowed.size() );
 
-        again = true;
+        //
+        Intent intent = new Intent( Intent.ACTION_MAIN );
+        intent.addCategory( Intent.CATEGORY_HOME );
+        ResolveInfo defaultLauncher = getPackageManager().resolveActivity( intent, PackageManager.MATCH_DEFAULT_ONLY );
+        String nameOfLauncherPkg = defaultLauncher.activityInfo.packageName;
 
-        while( again ) {
+        AppInfo current = new AppInfo();
+        String temp = "";
+        while( !stop ) {
+
+            // Get the Activity Manager
+            ActivityManager manager = ( ActivityManager ) getSystemService( ACTIVITY_SERVICE );
             // Get a list of running tasks, we are only interested in the last one,
             // the top most so we give a 1 as parameter so we only get the topmost.
             List< ActivityManager.RunningTaskInfo > task = manager.getRunningTasks( 1 );
@@ -69,19 +86,29 @@ public class LookupService extends IntentService {
             // Get the info we need for comparison.
             ComponentName componentInfo = task.get( 0 ).topActivity;
 
-            Log.d( "DEBUG", "-------------------------------------> " + componentInfo.getPackageName() );
+            // Check if it matches our package name.
+            current.appPackage = componentInfo.getPackageName();
 
-//            // Check if it matches our package name.
-//            if ( componentInfo.getPackageName().equals( PackageName ) ) {
-//
-//            } else {
-//                // If not then our app is not on the foreground.
-//            }
+            if ( !current.appPackage.equals( temp ) ) {
+                temp = current.appPackage;
+                Log.d( "DEBUG", "---------------> " + current.appPackage );
+            }
 
-            sendBroadcast( new Intent( ToastReceiver.ACTION_LOOKUP_ALERT ) );
-            again = false;
+            if ( !allowed.contains( current ) ) {
+                if ( !( "br.com.getmo.appsblocker".equals( current.appPackage ) || nameOfLauncherPkg.equals( current.appPackage ) ) ) {
+                    Intent it = new Intent( ToastReceiver.ACTION_LOOKUP_ALERT );
+//                    it.putExtra( AppInfo.APP_NAME, componentInfo. )
+                    sendBroadcast( it );
+                }
+            }
         }
     }
 
-    public static boolean again;
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d( "DEBUG", "service destroyed" );
+    }
+
+    public static boolean stop;
 }
