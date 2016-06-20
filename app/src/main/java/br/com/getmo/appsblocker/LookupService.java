@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.util.Log;
 
 import com.orm.util.NamingHelper;
@@ -74,22 +75,26 @@ public class LookupService extends IntentService {
         String nameOfLauncherPkg = defaultLauncher.activityInfo.packageName;
 
         AppInfo current = new AppInfo();
+        current.appPackage = "";
         String temp = "";
+
+        // Get the Activity Manager
+        ActivityManager manager = ( ActivityManager ) getSystemService( ACTIVITY_SERVICE );
         while( !stop ) {
 
-            // Get the Activity Manager
-            ActivityManager manager = ( ActivityManager ) getSystemService( ACTIVITY_SERVICE );
             // Get a list of running tasks, we are only interested in the last one,
             // the top most so we give a 1 as parameter so we only get the topmost.
-            List< ActivityManager.RunningTaskInfo > task = manager.getRunningTasks( 1 );
+            if ( android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
+                List<ActivityManager.RunningAppProcessInfo> runningTasks = manager.getRunningAppProcesses();
+                if ( runningTasks != null && runningTasks.size() > 0 )
+                    current.appPackage = runningTasks.get( 0 ).processName;
+            } else {
+                List<ActivityManager.RunningTaskInfo> runningTasksOld = manager.getRunningTasks(1);
+                if ( runningTasksOld != null && runningTasksOld.size() > 0 )
+                    current.appPackage = runningTasksOld.get(0).topActivity.getPackageName();
+            }
 
-            // Get the info we need for comparison.
-            ComponentName componentInfo = task.get( 0 ).topActivity;
-
-            // Check if it matches our package name.
-            current.appPackage = componentInfo.getPackageName();
-
-            if ( !current.appPackage.equals( temp ) ) {
+            if ( !temp.equals( current.appPackage ) ) {
                 temp = current.appPackage;
                 Log.d( "DEBUG", "---------------> " + current.appPackage );
             }
