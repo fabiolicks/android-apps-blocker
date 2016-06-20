@@ -18,7 +18,6 @@ public class AppInfo extends SugarRecord implements Comparable<AppInfo> {
 
     public String appMainActivity;
 
-    @Ignore
     public String appName;
 
     @Ignore
@@ -26,6 +25,10 @@ public class AppInfo extends SugarRecord implements Comparable<AppInfo> {
 
     @Ignore
     public static final String APP_NAME = "br.com.getmo.appsblocker.field.APP_NAME";
+
+    public AppInfo( ) {
+        this.appPackage = "";
+    }
 
     @Override
     public String toString() {

@@ -5,11 +5,16 @@ import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.util.Log;
 
+import com.jaredrummler.android.processes.AndroidProcesses;
+import com.jaredrummler.android.processes.models.AndroidAppProcess;
+import com.jaredrummler.android.processes.models.Stat;
 import com.orm.util.NamingHelper;
 
 import java.util.List;
@@ -66,44 +71,54 @@ public class LookupService extends IntentService {
         // List of allowed apps
         List<AppInfo> allowed =
                 AppInfo.find( AppInfo.class, NamingHelper.toSQLNameDefault( "isAllowed" ) + " = ?", "1" );
-        Log.d( "DEBUG", "---------------> " + allowed.size() );
 
-        //
-        Intent intent = new Intent( Intent.ACTION_MAIN );
-        intent.addCategory( Intent.CATEGORY_HOME );
-        ResolveInfo defaultLauncher = getPackageManager().resolveActivity( intent, PackageManager.MATCH_DEFAULT_ONLY );
-        String nameOfLauncherPkg = defaultLauncher.activityInfo.packageName;
+        String nameOfLauncherPkg = AppsUtils.getDefaultHomeAppPackage( this );
 
         AppInfo current = new AppInfo();
-        current.appPackage = "";
-        String temp = "";
+        String     temp = "";
 
         // Get the Activity Manager
         ActivityManager manager = ( ActivityManager ) getSystemService( ACTIVITY_SERVICE );
+
         while( !stop ) {
+            // Get a list of running tasks
 
-            // Get a list of running tasks, we are only interested in the last one,
-            // the top most so we give a 1 as parameter so we only get the topmost.
-            if ( android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ) {
-                List<ActivityManager.RunningAppProcessInfo> runningTasks = manager.getRunningAppProcesses();
-                if ( runningTasks != null && runningTasks.size() > 0 )
-                    current.appPackage = runningTasks.get( 0 ).processName;
-            } else {
-                List<ActivityManager.RunningTaskInfo> runningTasksOld = manager.getRunningTasks(1);
-                if ( runningTasksOld != null && runningTasksOld.size() > 0 )
-                    current.appPackage = runningTasksOld.get(0).topActivity.getPackageName();
-            }
+            List<AndroidAppProcess> processes = AndroidProcesses.getRunningAppProcesses();
+            for ( AndroidAppProcess pInfo : processes ) {
+                if ( pInfo.foreground ) {
+                    try {
+                        PackageInfo packageInfo = pInfo.getPackageInfo( this, 0 );
+                        ApplicationInfo a = packageInfo.applicationInfo;
 
-            if ( !temp.equals( current.appPackage ) ) {
-                temp = current.appPackage;
-                Log.d( "DEBUG", "---------------> " + current.appPackage );
-            }
+                        // skip system apps if they shall not be included
+                        if( ( a.flags & ApplicationInfo.FLAG_SYSTEM ) == 1 ) {
+                            continue;
+                        }
 
-            if ( !allowed.contains( current ) ) {
-                if ( !( "br.com.getmo.appsblocker".equals( current.appPackage ) || nameOfLauncherPkg.equals( current.appPackage ) ) ) {
-                    Intent it = new Intent( ToastReceiver.ACTION_LOOKUP_ALERT );
-//                    it.putExtra( AppInfo.APP_NAME, componentInfo. )
-                    sendBroadcast( it );
+                        current.appPackage = pInfo.name;
+                        current.appName    = packageInfo.applicationInfo.loadLabel( getPackageManager() ).toString();
+
+                        if ( !temp.equals( current.appPackage ) ) {
+                            temp = current.appPackage;
+                            Log.d( "DEBUG", "--------------- : { foreground : "
+                                    + pInfo.foreground + ", pid : "
+                                    + pInfo.stat().getPid() + ", name : "
+                                    + current.appPackage + ", package : " + current.appName + "}" );
+
+                            if ( !allowed.contains( current ) ) {
+                                if ( !( "br.com.getmo.appsblocker".equals( current.appPackage )
+                                        || nameOfLauncherPkg.equals( current.appPackage ) ) ) {
+                                    Intent it = new Intent( ToastReceiver.ACTION_LOOKUP_ALERT );
+                                    it.putExtra( AppInfo.APP_NAME, current.appName );
+                                    sendBroadcast( it );
+                                }
+                            }
+
+                            break;
+                        }
+                    } catch ( Exception e ) {
+
+                    }
                 }
             }
         }

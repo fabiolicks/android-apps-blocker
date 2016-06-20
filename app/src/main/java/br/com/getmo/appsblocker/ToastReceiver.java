@@ -16,7 +16,7 @@ public class ToastReceiver extends BroadcastReceiver {
     public void onReceive( Context context, Intent intent ) {
         String action = intent.getAction();
         if ( ACTION_LOOKUP_ALERT.equals( action ) ) {
-            String appName = "TESTE!"; // intent.getStringExtra( AppInfo.APP_NAME );
+            String appName = intent.getStringExtra( AppInfo.APP_NAME );
             Toast.makeText(
                     context,
                     String.format( context.getString( R.string.alert_denied ), appName ), Toast.LENGTH_SHORT ).show();
