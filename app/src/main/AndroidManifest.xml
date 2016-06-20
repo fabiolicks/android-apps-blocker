@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="br.com.getmo.appsblocker">
 
-    <!--uses-permission android:name="android.permission.GET_TASKS"/-->
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
 
     <application

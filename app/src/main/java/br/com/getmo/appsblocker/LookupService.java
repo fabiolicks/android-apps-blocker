@@ -24,6 +24,7 @@ import java.util.List;
  * a service on a separate handler thread.
  * <p>
  * helper methods.
+ * @see <a href="https://github.com/jaredrummler/AndroidProcesses">AndroidProcesses</a>
  */
 public class LookupService extends IntentService {
 
