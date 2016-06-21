@@ -25,6 +25,7 @@ import java.util.List;
  * <p>
  * helper methods.
  * @see <a href="https://github.com/jaredrummler/AndroidProcesses">AndroidProcesses</a>
+ * @see <a href="http://stackoverflow.com/questions/8225156/override-or-disable-settings-menu">override-or-disable-settings-menu</a>
  */
 public class LookupService extends IntentService {
 

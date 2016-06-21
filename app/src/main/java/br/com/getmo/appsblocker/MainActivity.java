@@ -1,9 +1,11 @@
 package br.com.getmo.appsblocker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         LookupService.stopActionLookup();
+
+//        startActivity( new Intent( Settings.ACTION_WIRELESS_SETTINGS ) );
     }
 
     @Override
