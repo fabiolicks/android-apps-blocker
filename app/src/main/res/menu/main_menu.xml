@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/unlock_settings"
+        android:title="Desbloquear Configurações"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/hide_app"
+        android:title="Esconder App Blocker"
+        app:showAsAction="never"/>
+
+</menu>
