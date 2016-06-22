@@ -3,6 +3,7 @@
     package="br.com.getmo.appsblocker">
 
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:name="com.orm.SugarApp"
@@ -28,12 +29,21 @@
 
         <service
             android:name=".LookupService"
-            android:exported="false"/>
+            android:exported="true"/>
 
         <receiver
             android:name=".ToastReceiver">
             <intent-filter>
                 <action android:name="br.com.getmo.appsblocker.action.LOOKUP_ALERT"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".LookupReceiver">
+            <intent-filter>
+                <action android:name="br.com.getmo.appsblocker.action.LOOKUP_RERUN"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>

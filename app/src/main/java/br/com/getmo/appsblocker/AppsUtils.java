@@ -1,5 +1,6 @@
 package br.com.getmo.appsblocker;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -51,6 +52,23 @@ public class AppsUtils {
         ResolveInfo defaultLauncher =
                 c.getPackageManager().resolveActivity( intent, PackageManager.MATCH_DEFAULT_ONLY );
         return defaultLauncher.activityInfo.packageName;
+    }
+
+
+    public static boolean isServiceRunning( Context c ) {
+        ActivityManager manager =
+                ( ActivityManager ) c.getSystemService( Context.ACTIVITY_SERVICE );
+
+        List<ActivityManager.RunningServiceInfo> services =
+                manager.getRunningServices( Integer.MAX_VALUE );
+
+        for ( ActivityManager.RunningServiceInfo service : services ) {
+            if ( LookupService.class.getName().equals( service.service.getClassName() ) ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

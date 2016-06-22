@@ -12,7 +12,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.main );
 
@@ -41,7 +41,19 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
 
-        LookupService.stopActionLookup();
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LookupReceiver.stop( this );
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LookupReceiver.start( this );
     }
 
     @Override
@@ -76,11 +88,5 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        LookupService.startActionLookup( this );
     }
 }
