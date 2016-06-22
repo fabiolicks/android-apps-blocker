@@ -118,8 +118,10 @@ public class LookupService extends IntentService {
 
                             break;
                         }
-                    } catch ( Exception e ) {
+                    } catch( PackageManager.NameNotFoundException e ) {
 
+                    } catch ( Exception e ) {
+                        Log.e( "DEBUG", e.getMessage(), e  );
                     }
                 }
             }
