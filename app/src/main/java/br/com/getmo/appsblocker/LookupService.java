@@ -2,19 +2,14 @@ package br.com.getmo.appsblocker;
 
 import android.app.ActivityManager;
 import android.app.IntentService;
-import android.content.ComponentName;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.os.Build;
 import android.util.Log;
 
 import com.jaredrummler.android.processes.AndroidProcesses;
 import com.jaredrummler.android.processes.models.AndroidAppProcess;
-import com.jaredrummler.android.processes.models.Stat;
 import com.orm.util.NamingHelper;
 
 import java.util.List;
@@ -44,9 +39,8 @@ public class LookupService extends IntentService {
     public static void startActionLookup( Context context ) {
         stopActionLookup();
 
-        Intent intent = new Intent( context, LookupService.class );
-        intent.setAction( ACTION_LOOKUP );
-        context.startService( intent );
+        context.startService(
+                new Intent( context, LookupService.class ).setAction( ACTION_LOOKUP ) );
     }
 
     public static void stopActionLookup( ) {
